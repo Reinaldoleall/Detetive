@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Detetive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container" id="login-container">
+        <div class="card">
+            <h1><i class="fas fa-search"></i> Jogo de Detetive</h1>
+            <div class="form-group">
+                <label for="player-name">Seu Nome:</label>
+                <input type="text" id="player-name" placeholder="Digite seu nome">
+            </div>
+            <div class="form-group">
+                <label for="room-code">Código da Sala:</label>
+                <input type="text" id="room-code" placeholder="Digite o código da sala">
+            </div>
+            <button id="join-room" class="btn-primary">Entrar na Sala</button>
+            <button id="create-room" class="btn-secondary">Criar Nova Sala</button>
+        </div>
+    </div>
+
+    <div class="container" id="lobby-container" style="display: none;">
+        <div class="card">
+            <h1><i class="fas fa-door-open"></i> Sala: <span id="display-room-code"></span></h1>
+            <div class="players-list" id="players-list">
+                <h2>Jogadores na Sala:</h2>
+                <ul id="players-ul"></ul>
+            </div>
+            <div id="host-controls" style="display: none;">
+                <button id="start-game" class="btn-primary">Iniciar Jogo</button>
+                <button id="reset-game" class="btn-danger">Reiniciar Sala</button>
+            </div>
+            <button id="leave-room" class="btn-secondary">Sair da Sala</button>
+        </div>
+    </div>
+
+    <div class="container" id="game-container" style="display: none;">
+        <div class="card" id="role-card">
+            <h1 id="role-title">Seu Papel</h1>
+            <div id="role-content">
+                <div id="role-description"></div>
+                <div id="game-instructions"></div>
+            </div>
+            <div id="game-actions" style="display: none;">
+                <button id="reveal-role" class="btn-primary">Revelar Meu Papel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
