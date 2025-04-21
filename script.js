@@ -2,11 +2,14 @@
 const firebaseConfig = {
   apiKey: "AIzaSyCwTNcpr_r75HH0igBtNyEbKvfuLkVFHiU",
   authDomain: "rifalidiane-fde3b.firebaseapp.com",
+  databaseURL: "https://rifalidiane-fde3b-default-rtdb.firebaseio.com", // ADICIONE ESTA LINHA
   projectId: "rifalidiane-fde3b",
-  storageBucket: "rifalidiane-fde3b.firebasestorage.app",
+  storageBucket: "rifalidiane-fde3b.appspot.com", // Corrigi este valor
   messagingSenderId: "649359518677",
   appId: "1:649359518677:web:879b4ed9fa5150d24d2b5c"
 };
+
+// Restante do código permanece igual...
 
 // Inicializa o Firebase
 firebase.initializeApp(firebaseConfig);
