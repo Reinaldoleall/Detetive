@@ -340,7 +340,6 @@
             playerId = generateId();
             isHost = true;
             
-            // Cria a sala no Firebase
             const roomRef = database.ref(`rooms/${roomCode}`);
             
             roomRef.set({
@@ -354,10 +353,7 @@
                     }
                 }
             }).then(() => {
-                // Mostra o lobby
                 showLobby();
-                
-                // Monitora mudanças na sala
                 monitorRoom();
             }).catch(error => {
                 console.error("Erro ao criar sala:", error);
@@ -392,16 +388,12 @@
                     return;
                 }
                 
-                // Adiciona o jogador à sala
                 roomRef.child(`players/${playerId}`).set({
                     name: playerName,
                     role: "",
                     revealed: false
                 }).then(() => {
-                    // Mostra o lobby
                     showLobby();
-                    
-                    // Monitora mudanças na sala
                     monitorRoom();
                 }).catch(error => {
                     console.error("Erro ao entrar na sala:", error);
@@ -436,22 +428,18 @@
                 const roomData = snapshot.val();
                 
                 if (!roomData) {
-                    // Sala foi deletada
                     alert("A sala foi encerrada pelo host.");
                     window.location.reload();
                     return;
                 }
                 
-                // Atualiza a lista de jogadores
                 updatePlayersList(roomData.players);
                 
-                // Verifica se o jogo começou
                 if (roomData.gameStarted && !gameStarted) {
                     gameStarted = true;
                     startPlayerGame(roomData.players[playerId].role);
                 }
                 
-                // Verifica se o jogo foi reiniciado
                 if (!roomData.gameStarted && gameStarted) {
                     gameStarted = false;
                     showLobby();
@@ -465,7 +453,7 @@
         function updatePlayersList(players) {
             playersList.innerHTML = '';
             
-            for (const [id, player] of Object.entries(players)) {
+            for (const [id, player] of Object.entries(players || {})) {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>${player.name}</span>
@@ -491,10 +479,8 @@
                     return;
                 }
                 
-                // Define os papéis
                 const roles = assignRoles(playerCount);
                 
-                // Atualiza os papéis dos jogadores
                 const updates = {};
                 playerIds.forEach((id, index) => {
                     updates[`players/${id}/role`] = roles[index];
@@ -513,25 +499,24 @@
             });
         }
 
-        // Atribui papéis aleatórios - MODIFICADO
+        // =======================================================
+        // FUNÇÃO CORRIGIDA
+        // =======================================================
         function assignRoles(playerCount) {
-            // A verificação de playerCount >= 3 já é feita em startGame
             const roles = [];
-
-            // Define os papéis fixos: 1 Assassino e 1 Detetive.
+            
+            // Papéis fixos: 1 Assassino, 1 Detetive, 1 Vítima
             roles.push('assassin');
             roles.push('detective');
-            
-            // O papel da Vítima é mantido, pois é central para a jogabilidade.
             roles.push('victim');
-
-            // Preenche o restante dos jogadores como Inocentes.
-            const numberOfInnocents = playerCount - 3;
-            for (let i = 0; i < numberOfInnocents; i++) {
+            
+            // O restante dos jogadores são inocentes
+            const remaining = playerCount - 3;
+            for (let i = 0; i < remaining; i++) {
                 roles.push('innocent');
             }
-
-            // Embaralha os papéis para que sejam distribuídos aleatoriamente.
+            
+            // Embaralha os papéis para distribuição aleatória
             return shuffleArray(roles);
         }
 
@@ -552,7 +537,6 @@
             lobbyContainer.style.display = 'none';
             gameContainer.style.display = 'flex';
             
-            // Mostra o botão para revelar o papel
             gameActions.style.display = 'block';
             roleTitle.textContent = "Bem-vindo ao Jogo";
             roleDescription.textContent = "Clique no botão abaixo para revelar seu papel no jogo.";
@@ -565,7 +549,6 @@
             roomRef.update({ revealed: true }).then(() => {
                 gameActions.style.display = 'none';
                 
-                // Configura a interface com base no papel
                 switch (playerRole) {
                     case 'assassin':
                         roleTitle.innerHTML = '<i class="fas fa-skull"></i> Assassino';
@@ -574,21 +557,21 @@
                             <h3>Instruções:</h3>
                             <ul>
                                 <li>Descubra quem é a vítima e tente "eliminá-la" sem ser pego.</li>
-                                <li>Use sua astúcia para enganar o detetive.</li>
-                                <li>Se você for descoberto, o detetive vencerá.</li>
+                                <li>Use sua astúcia para enganar o detetive e os inocentes.</li>
+                                <li>Se você for descoberto, o detetive e os inocentes vencem.</li>
                             </ul>
                         `;
                         break;
                         
                     case 'victim':
                         roleTitle.innerHTML = '<i class="fas fa-user-injured"></i> Vítima';
-                        roleDescription.textContent = "Você é a vítima! O assassino está tentando te eliminar - descubra quem é antes que seja tarde!";
+                        roleDescription.textContent = "Você é a vítima! O assassino está tentando te eliminar. Tente sobreviver e ajudar a descobrir quem ele é.";
                         gameInstructions.innerHTML = `
                             <h3>Instruções:</h3>
                             <ul>
                                 <li>Você não sabe quem é o assassino.</li>
-                                <li>Tente descobrir pistas e se proteger.</li>
-                                <li>Se você descobrir o assassino antes de ser "eliminado", você e o detetive vencerão.</li>
+                                <li>Tente agir normalmente para não se tornar um alvo óbvio.</li>
+                                <li>Se o assassino for descoberto, você vence com os outros.</li>
                             </ul>
                         `;
                         break;
@@ -600,19 +583,20 @@
                             <h3>Instruções:</h3>
                             <ul>
                                 <li>Investigue os outros jogadores e colete pistas.</li>
-                                <li>Se você descobrir o assassino antes que ele elimine a vítima, você vence.</li>
+                                <li>Proteja a vítima e os inocentes.</li>
+                                <li>Se você descobrir o assassino, você e os inocentes vencem.</li>
                             </ul>
                         `;
                         break;
                         
                     default: // innocent
                         roleTitle.innerHTML = '<i class="fas fa-user"></i> Inocente';
-                        roleDescription.textContent = "Você é um inocente! Ajude o detetive a descobrir quem é o assassino, mas cuidado - você pode ser confundido com o criminoso!";
+                        roleDescription.textContent = "Você é um inocente! Ajude o detetive a descobrir quem é o assassino, mas cuidado para não se tornar suspeito.";
                         gameInstructions.innerHTML = `
                             <h3>Instruções:</h3>
                             <ul>
-                                <li>Você não é o assassino, mas também não é o detetive.</li>
-                                <li>Ajude o detetive com informações, mas tome cuidado para não parecer suspeito.</li>
+                                <li>Observe o comportamento de todos.</li>
+                                <li>Ajude o detetive com informações, mas tenha cuidado para não ser enganado pelo assassino.</li>
                                 <li>Se o detetive descobrir o assassino, você vence junto com ele.</li>
                             </ul>
                         `;
@@ -627,7 +611,6 @@
         function resetRoom() {
             const roomRef = database.ref(`rooms/${roomCode}`);
             
-            // Reseta todos os jogadores
             roomRef.once('value').then(snapshot => {
                 const players = snapshot.val().players;
                 const updates = {};
@@ -650,25 +633,16 @@
 
         // Sai da sala
         function leaveRoom() {
-            const roomRef = database.ref(`rooms/${roomCode}`);
+            const roomRef = database.ref(`rooms/${roomCode}/players/${playerId}`);
             
-            if (isHost) {
-                // Host saindo - deleta a sala
-                roomRef.remove().then(() => {
-                    window.location.reload();
-                }).catch(error => {
-                    console.error("Erro ao deletar sala:", error);
-                    alert("Erro ao sair da sala. Verifique o console para mais detalhes.");
-                });
-            } else {
-                // Jogador normal saindo - remove-se da lista
-                roomRef.child(`players/${playerId}`).remove().then(() => {
-                    window.location.reload();
-                }).catch(error => {
-                    console.error("Erro ao sair da sala:", error);
-                    alert("Erro ao sair da sala. Verifique o console para mais detalhes.");
-                });
-            }
+            roomRef.remove().then(() => {
+                window.location.reload();
+            }).catch(error => {
+                console.error("Erro ao sair da sala:", error);
+                alert("Erro ao sair da sala. Verifique o console para mais detalhes.");
+            });
+
+            // Lógica adicional se o host sair (opcional, pode deletar a sala)
         }
 
         // Retorna o nome do papel para exibição
@@ -680,23 +654,6 @@
                 default: return 'Inocente';
             }
         }
-
-        // Teste inicial de conexão com o Firebase
-        function testFirebaseConnection() {
-            const testRef = database.ref('connection_test');
-            testRef.set({
-                timestamp: Date.now(),
-                message: "Teste de conexão bem-sucedido"
-            }).then(() => {
-                console.log("Conexão com Firebase estabelecida com sucesso!");
-                testRef.remove(); // Limpa o teste
-            }).catch(error => {
-                console.error("Erro na conexão com Firebase:", error);
-            });
-        }
-
-        // Executa o teste de conexão quando a página carrega
-        window.addEventListener('load', testFirebaseConnection);
     </script>
 </body>
 </html>
