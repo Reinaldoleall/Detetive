@@ -486,12 +486,12 @@
                 const playerIds = Object.keys(players);
                 const playerCount = playerIds.length;
                 
-                if (playerCount < 3) {
-                    alert("São necessários pelo menos 3 jogadores para começar o jogo.");
+                if (playerCount < 2) {
+                    alert("São necessários pelo menos 2 jogadores para começar o jogo.");
                     return;
                 }
                 
-                // Define os papéis
+                // Define os papéis (apenas Assassino e Detetives)
                 const roles = assignRoles(playerCount);
                 
                 // Atualiza os papéis dos jogadores
@@ -513,22 +513,16 @@
             });
         }
 
-        // Atribui papéis aleatórios
+        // Atribui papéis aleatórios (1 assassino e o resto detetives)
         function assignRoles(playerCount) {
             const roles = [];
             
-            // Sempre 1 assassino e 1 vítima
+            // 1 assassino
             roles.push('assassin');
-            roles.push('victim');
             
-            // Pelo menos 1 detetive
-            roles.push('detective');
-            
-            // O restante são inocentes ou detetives extras
-            const remaining = playerCount - 3;
-            for (let i = 0; i < remaining; i++) {
-                // 50% de chance de ser detetive ou inocente
-                roles.push(Math.random() > 0.5 ? 'detective' : 'innocent');
+            // O restante são detetives
+            for (let i = 1; i < playerCount; i++) {
+                roles.push('detective');
             }
             
             // Embaralha os papéis
@@ -569,54 +563,29 @@
                 switch (playerRole) {
                     case 'assassin':
                         roleTitle.innerHTML = '<i class="fas fa-skull"></i> Assassino';
-                        roleDescription.textContent = "Você é o assassino! Seu objetivo é eliminar a vítima sem ser descoberto pelos detetives.";
+                        roleDescription.textContent = "Você é o assassino! Seu objetivo é eliminar os detetives sem ser descoberto.";
                         gameInstructions.innerHTML = `
                             <h3>Instruções:</h3>
                             <ul>
-                                <li>Descubra quem é a vítima e tente "eliminá-la" sem ser pego</li>
+                                <li>Tente eliminar os detetives sem ser pego</li>
                                 <li>Use sua astúcia para enganar os detetives</li>
                                 <li>Se você for descoberto, os detetives vencerão</li>
                             </ul>
                         `;
                         break;
                         
-                    case 'victim':
-                        roleTitle.innerHTML = '<i class="fas fa-user-injured"></i> Vítima';
-                        roleDescription.textContent = "Você é a vítima! O assassino está tentando te eliminar - descubra quem é antes que seja tarde!";
-                        gameInstructions.innerHTML = `
-                            <h3>Instruções:</h3>
-                            <ul>
-                                <li>Você não sabe quem é o assassino</li>
-                                <li>Tente descobrir pistas e se proteger</li>
-                                <li>Se você descobrir o assassino antes de ser "eliminado", você e os detetives vencerão</li>
-                            </ul>
-                        `;
-                        break;
-                        
                     case 'detective':
                         roleTitle.innerHTML = '<i class="fas fa-search"></i> Detetive';
-                        roleDescription.textContent = "Você é um detetive! Seu objetivo é descobrir quem é o assassino antes que ele elimine a vítima.";
+                        roleDescription.textContent = "Você é um detetive! Seu objetivo é descobrir quem é o assassino antes que ele elimine todos os detetives.";
                         gameInstructions.innerHTML = `
                             <h3>Instruções:</h3>
                             <ul>
                                 <li>Investigue os outros jogadores e colete pistas</li>
                                 <li>Trabalhe em equipe com outros detetives</li>
-                                <li>Se você descobrir o assassino antes que ele elimine a vítima, você vence</li>
+                                <li>Se você descobrir o assassino, você vence</li>
                             </ul>
                         `;
                         break;
-                        
-                    default: // innocent
-                        roleTitle.innerHTML = '<i class="fas fa-user"></i> Inocente';
-                        roleDescription.textContent = "Você é um inocente! Ajude os detetives a descobrir quem é o assassino, mas cuidado - você pode ser confundido com o criminoso!";
-                        gameInstructions.innerHTML = `
-                            <h3>Instruções:</h3>
-                            <ul>
-                                <li>Você não é o assassino, mas também não é um detetive</li>
-                                <li>Ajude os detetives com informações, mas tome cuidado para não parecer suspeito</li>
-                                <li>Se os detetives descobrirem o assassino, você vence junto com eles</li>
-                            </ul>
-                        `;
                 }
             }).catch(error => {
                 console.error("Erro ao revelar papel:", error);
@@ -676,9 +645,8 @@
         function getRoleName(role) {
             switch (role) {
                 case 'assassin': return 'Assassino';
-                case 'victim': return 'Vítima';
                 case 'detective': return 'Detetive';
-                default: return 'Inocente';
+                default: return role;
             }
         }
 
