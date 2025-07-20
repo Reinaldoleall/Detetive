@@ -503,22 +503,22 @@
         // FUNÇÃO CORRIGIDA
         // =======================================================
         function assignRoles(playerCount) {
-            const roles = [];
-            
-            // Papéis fixos: 1 Assassino, 1 Detetive, 1 Vítima
-            roles.push('assassin');
-            roles.push('detective');
-            roles.push('victim');
-            
-            // O restante dos jogadores são inocentes
-            const remaining = playerCount - 3;
-            for (let i = 0; i < remaining; i++) {
-                roles.push('innocent');
-            }
-            
-            // Embaralha os papéis para distribuição aleatória
-            return shuffleArray(roles);
-        }
+    const roles = [];
+
+    // Garantir papéis únicos obrigatórios
+    roles.push('assassin');  // 1 assassino
+    roles.push('detective'); // 1 detetive
+    roles.push('victim');    // 1 vítima
+
+    // Todos os demais são inocentes
+    const remaining = playerCount - 3;
+    for (let i = 0; i < remaining; i++) {
+        roles.push('innocent');
+    }
+
+    // Embaralha para evitar previsibilidade
+    return shuffleArray(roles);
+}
 
         // Embaralha um array
         function shuffleArray(array) {
