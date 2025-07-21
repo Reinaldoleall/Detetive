@@ -20,14 +20,24 @@
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: #1a1a2e;
-    color: #e6e6e6;
-    min-height: 100vh;
-    background-image: 
-        radial-gradient(circle at 10% 20%, rgba(255, 0, 0, 0.05) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(0, 0, 255, 0.05) 0%, transparent 20%),
-        linear-gradient(to bottom, #1a1a2e, #16213e);
+    background-image: url('wall.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
     background-attachment: fixed;
+    min-height: 100vh;
     overflow-x: hidden;
+    position: relative;
+}
+
+.bg-blur {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(4px);
+    z-index: 0;
 }
 
 /* Adicione esta regra para os inputs */
@@ -302,29 +312,32 @@ input[type="text"]:focus {
     bottom: -50px;
     width: 150px;
     height: 200px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center bottom;
     z-index: 1;
     transition: all 0.5s ease;
     filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.character img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
 }
 
 .character.detective {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"><path d="M50,20 Q60,10 70,20 Q80,30 70,40 Q60,50 50,40 Q40,50 30,40 Q20,30 30,20 Q40,10 50,20" fill="%23333"/><circle cx="50" cy="30" r="5" fill="%23fff"/><circle cx="50" cy="30" r="2" fill="%23000"/><path d="M45,35 Q50,40 55,35" stroke="%23000" fill="none" stroke-width="1"/><path d="M30,60 L70,60 L65,120 L60,150 L40,150 L35,120 Z" fill="%234a5c6a"/><path d="M30,60 L20,55 L15,70 L25,75 M70,60 L80,55 L85,70 L75,75" fill="%234a5c6a"/><path d="M40,150 L35,180 L45,180 M60,150 L65,180 L55,180" fill="%23333"/><path d="M50,80 L50,100" stroke="%23000" stroke-width="2"/><path d="M40,90 L60,90" stroke="%23000" stroke-width="2"/><path d="M50,120 L50,140" stroke="%23000" stroke-width="2"/><path d="M40,130 L60,130" stroke="%23000" stroke-width="2"/><path d="M50,20 L50,40" stroke="%23fff" stroke-width="2"/></svg>');
     left: 50%;
     transform: translateX(-50%);
     animation: float 3s ease-in-out infinite;
 }
 
 .character.victim {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"><path d="M50,20 Q60,10 70,20 Q80,30 70,40 Q60,50 50,40 Q40,50 30,40 Q20,30 30,20 Q40,10 50,20" fill="%23ffcc00"/><circle cx="50" cy="30" r="5" fill="%23fff"/><circle cx="50" cy="30" r="2" fill="%23000"/><path d="M45,35 Q50,40 55,35" stroke="%23000" fill="none" stroke-width="1"/><path d="M30,60 L70,60 L65,120 L60,150 L40,150 L35,120 Z" fill="%23e94560"/><path d="M30,60 L20,55 L15,70 L25,75 M70,60 L80,55 L85,70 L75,75" fill="%23e94560"/><path d="M40,150 L35,180 L45,180 M60,150 L65,180 L55,180" fill="%23333"/><path d="M50,80 L50,100" stroke="%23000" stroke-width="2"/><path d="M40,90 L60,90" stroke="%23000" stroke-width="2"/><path d="M50,120 L50,140" stroke="%23000" stroke-width="2"/><path d="M40,130 L60,130" stroke="%23000" stroke-width="2"/><path d="M50,20 L50,40" stroke="%23fff" stroke-width="2"/></svg>');
     left: 20%;
     animation: float 3.5s ease-in-out infinite 0.5s;
 }
 
 .character.assassin {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"><path d="M50,20 Q60,10 70,20 Q80,30 70,40 Q60,50 50,40 Q40,50 30,40 Q20,30 30,20 Q40,10 50,20" fill="%23333"/><circle cx="50" cy="30" r="5" fill="%23fff"/><circle cx="50" cy="30" r="2" fill="%23000"/><path d="M45,35 Q50,40 55,35" stroke="%23000" fill="none" stroke-width="1"/><path d="M30,60 L70,60 L65,120 L60,150 L40,150 L35,120 Z" fill="%231a1a2e"/><path d="M30,60 L20,55 L15,70 L25,75 M70,60 L80,55 L85,70 L75,75" fill="%231a1a2e"/><path d="M40,150 L35,180 L45,180 M60,150 L65,180 L55,180" fill="%23333"/><path d="M50,80 L50,100" stroke="%23000" stroke-width="2"/><path d="M40,90 L60,90" stroke="%23000" stroke-width="2"/><path d="M50,120 L50,140" stroke="%23000" stroke-width="2"/><path d="M40,130 L60,130" stroke="%23000" stroke-width="2"/><path d="M50,20 L50,40" stroke="%23fff" stroke-width="2"/><path d="M60,25 L70,15 M70,25 L60,15" stroke="%23ff0000" stroke-width="2"/></svg>');
     right: 20%;
     animation: float 4s ease-in-out infinite 0.7s;
 }
@@ -512,6 +525,8 @@ input[type="text"]:focus {
 }
 </style>
 <body>
+  <div class="bg-blur"></div>
+  <!-- Seu conteúdo principal aqui -->
     <div class="container" id="login-container">
         <div class="card">
             <h1><i class="fas fa-search"></i> Jogo de Detetive</h1>
@@ -829,64 +844,87 @@ input[type="text"]:focus {
         }
 
         // Revela o papel do jogador
-        function revealRole() {
-            const roomRef = database.ref(`rooms/${roomCode}/players/${playerId}`);
-            roomRef.update({ revealed: true }).then(() => {
-                gameActions.style.display = 'none';
-                
-                switch (playerRole) {
-                    case 'assassin':
-                        roleTitle.innerHTML = '<i class="fas fa-skull"></i> Assassino';
-                        roleDescription.textContent = "Você é o assassino! Seu objetivo é eliminar uma das vítimas sem ser descoberto pelo detetive.";
-                        gameInstructions.innerHTML = `
-                            <h3>Instruções:</h3>
-                            <ul>
-                                <li>Você deve eliminar uma vítima sem ser pego pelo detetive.</li>
-                                <li>Tente se misturar com as vítimas e não chamar atenção.</li>
-                                <li>Se você for descoberto pelo detetive, você perde.</li>
-                            </ul>
-                        `;
-                        break;
-                        
-                    case 'victim':
-                        roleTitle.innerHTML = '<i class="fas fa-user-injured"></i> Vítima';
-                        roleDescription.textContent = "Você é uma vítima! O assassino está tentando te eliminar. Tente sobreviver e ajudar o detetive.";
-                        gameInstructions.innerHTML = `
-                            <h3>Instruções:</h3>
-                            <ul>
-                                <li>Você não sabe quem é o assassino.</li>
-                                <li>Tente descobrir quem é o assassino junto com o detetive.</li>
-                                <li>Se o assassino for descoberto, você vence.</li>
-                            </ul>
-                        `;
-                        break;
-                        
-                    case 'detective':
-                        roleTitle.innerHTML = '<i class="fas fa-search"></i> Detetive';
-                        roleDescription.textContent = "Você é o detetive! Seu objetivo é descobrir quem é o assassino antes que ele elimine uma vítima.";
-                        gameInstructions.innerHTML = `
-                            <h3>Instruções:</h3>
-                            <ul>
-                                <li>Investigue os outros jogadores e colete pistas.</li>
-                                <li>Proteja as vítimas e descubra o assassino.</li>
-                                <li>Se você descobrir o assassino, você e as vítimas vencem.</li>
-                            </ul>
-                        `;
-                        break;
-                }
-            }).catch(error => {
-                console.error("Erro ao revelar papel:", error);
-                alert("Erro ao revelar papel. Verifique o console para mais detalhes.");
-            });
-            // Dentro da função revealRole(), após definir o papel:
-const roleCard = document.getElementById('role-card');
-roleCard.setAttribute('data-role', playerRole);
+function revealRole() {
+    const roomRef = database.ref(`rooms/${roomCode}/players/${playerId}`);
+    roomRef.update({ revealed: true }).then(() => {
+        gameActions.style.display = 'none';
+        
+        // Configurações específicas para cada papel
+        const roleConfig = {
+            'assassin': {
+                title: '<i class="fas fa-skull"></i> Assassino',
+                description: "Você é o assassino! Seu objetivo é eliminar uma das vítimas sem ser descoberto pelo detetive.",
+                instructions: `
+                    <h3>Instruções:</h3>
+                    <ul>
+                        <li>Você deve eliminar uma vítima sem ser pego pelo detetive.</li>
+                        <li>Tente se misturar com as vítimas e não chamar atenção.</li>
+                        <li>Se você for descoberto pelo detetive, você perde.</li>
+                    </ul>
+                `,
+                gif: 'https://i.gifer.com/PrjO.gif' // GIF de assassino
+            },
+            'victim': {
+                title: '<i class="fas fa-user-injured"></i> Vítima',
+                description: "Você é uma vítima! O assassino está tentando te eliminar. Tente sobreviver e ajudar o detetive.",
+                instructions: `
+                    <h3>Instruções:</h3>
+                    <ul>
+                        <li>Você não sabe quem é o assassino.</li>
+                        <li>Tente descobrir quem é o assassino junto com o detetive.</li>
+                        <li>Se o assassino for descoberto, você vence.</li>
+                    </ul>
+                `,
+                gif: 'https://i.gifer.com/9wmP.gif' // GIF de vítima assustada
+            },
+            'detective': {
+                title: '<i class="fas fa-search"></i> Detetive',
+                description: "Você é o detetive! Seu objetivo é descobrir quem é o assassino antes que ele elimine uma vítima.",
+                instructions: `
+                    <h3>Instruções:</h3>
+                    <ul>
+                        <li>Investigue os outros jogadores e colete pistas.</li>
+                        <li>Proteja as vítimas e descubra o assassino.</li>
+                        <li>Se você descobrir o assassino, você e as vítimas vencem.</li>
+                    </ul>
+                `,
+                gif: 'https://i.pinimg.com/originals/7a/62/3f/7a623ff296a6b44cf0183c72c4003457.gif' // GIF de detetive
+            }
+        };
 
-// Adiciona o personagem correspondente
-const characterDiv = document.createElement('div');
-characterDiv.className = `character ${playerRole}`;
-roleCard.appendChild(characterDiv);
+        // Aplica as configurações baseadas no papel
+        const config = roleConfig[playerRole];
+        roleTitle.innerHTML = config.title;
+        roleDescription.textContent = config.description;
+        gameInstructions.innerHTML = config.instructions;
+
+        // Configura o personagem GIF
+        const roleCard = document.getElementById('role-card');
+        roleCard.setAttribute('data-role', playerRole);
+
+        // Remove qualquer personagem existente
+        const existingCharacter = roleCard.querySelector('.character');
+        if (existingCharacter) {
+            roleCard.removeChild(existingCharacter);
         }
+
+        // Cria o container do GIF
+        const characterContainer = document.createElement('div');
+        characterContainer.className = `character ${playerRole}`;
+        
+        // Para melhor controle, podemos usar tag img em vez de background-image
+        characterContainer.innerHTML = `
+            <img src="${config.gif}" alt="${playerRole}" 
+                 style="width: 100%; height: 100%; object-fit: contain;">
+        `;
+        
+        roleCard.appendChild(characterContainer);
+
+    }).catch(error => {
+        console.error("Erro ao revelar papel:", error);
+        alert("Erro ao revelar papel. Verifique o console para mais detalhes.");
+    });
+}
 
         // Reinicia a sala (apenas host)
         function resetRoom() {
