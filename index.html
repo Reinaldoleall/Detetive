@@ -6,222 +6,511 @@
     <title>Jogo de Detetive</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --dark-color: #2c3e50;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-        }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f5f5f5;
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-
-        h1, h2, h3 {
-            font-family: 'Cinzel', serif;
-            margin-bottom: 20px;
-            color: var(--primary-color);
-        }
-
-        h1 {
-            font-size: 2.2rem;
-        }
-
-        h1 i {
-            margin-right: 10px;
-            color: var(--accent-color);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 5px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .btn-secondary {
-            background-color: var(--light-color);
-            color: var(--dark-color);
-            border: 1px solid var(--dark-color);
-        }
-
-        .btn-secondary:hover {
-            background-color: var(--dark-color);
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-
-        .players-list {
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .players-list ul {
-            list-style-type: none;
-            margin-top: 10px;
-        }
-
-        .players-list li {
-            padding: 10px;
-            background-color: var(--light-color);
-            margin-bottom: 5px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        #role-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        #role-title {
-            font-size: 2.5rem;
-            color: var(--accent-color);
-        }
-
-        #role-content {
-            padding: 20px;
-            background-color: var(--light-color);
-            border-radius: 8px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        #role-description {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-        }
-
-        #game-instructions {
-            font-size: 1rem;
-            color: var(--secondary-color);
-        }
-
-        .role-icon {
-            font-size: 4rem;
-            margin: 20px 0;
-            color: var(--accent-color);
-        }
-
-        .you-badge {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-
-        .role-badge {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .card {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
 </head>
+<style>
+  /* Estilos Gerais */
+/* Estilos Gerais */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #1a1a2e;
+    color: #e6e6e6;
+    min-height: 100vh;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 0, 0, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(0, 0, 255, 0.05) 0%, transparent 20%),
+        linear-gradient(to bottom, #1a1a2e, #16213e);
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+/* Adicione esta regra para os inputs */
+input[type="text"] {
+    position: relative;
+    z-index: 2; /* Garante que fique acima dos efeitos do card */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.card {
+    background: rgba(30, 30, 60, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 
+                0 0 15px rgba(108, 122, 137, 0.1) inset;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 50%,
+        transparent 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 8s infinite linear;
+}
+
+h1, h2, h3 {
+    font-family: 'Cinzel', serif;
+    color: #f8f8f8;
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+h1 i {
+    margin-right: 10px;
+    color: #e94560;
+    animation: pulse 2s infinite;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #d1d1d1;
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin: 15px 0;
+    color: #e94560;
+}
+
+/* Formulários */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #a1a1a1;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(20, 20, 40, 0.7);
+    color: #f8f8f8;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) inset;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #e94560;
+    box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.3);
+    background: rgba(30, 30, 60, 0.9);
+}
+
+/* Botões */
+.btn-primary, .btn-secondary, .btn-danger {
+    display: inline-block;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-bottom: 10px;
+    border: none;
+    font-size: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #e94560, #c2334a);
+    color: white;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #4a5c6a, #3a4a56);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff4757, #cc3a47);
+    color: white;
+}
+
+.btn-primary:hover, .btn-secondary:hover, .btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:active, .btn-secondary:active, .btn-danger:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary::after, .btn-secondary::after, .btn-danger::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.btn-primary:hover::after, .btn-secondary:hover::after, .btn-danger:hover::after {
+    left: 100%;
+}
+
+/* Lista de Jogadores */
+.players-list {
+    margin: 25px 0;
+    background: rgba(20, 20, 40, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.players-list ul {
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.players-list li {
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background: rgba(40, 40, 70, 0.5);
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.players-list li:hover {
+    background: rgba(50, 50, 80, 0.7);
+    border-left: 3px solid #e94560;
+}
+
+.you-badge {
+    background: #e94560;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.role-badge {
+    background: #0f3460;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 8px;
+    animation: bounce 1s infinite alternate;
+}
+
+/* Cartão de Papel no Jogo */
+#role-card {
+    position: relative;
+    overflow: visible;
+    padding-bottom: 100px;
+}
+
+#role-content {
+    min-height: 200px;
+    position: relative;
+    z-index: 2;
+}
+
+#role-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#game-instructions {
+    background: rgba(15, 52, 96, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #e94560;
+}
+
+#game-instructions ul {
+    list-style-position: inside;
+    margin-top: 10px;
+}
+
+#game-instructions li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* Personagens */
+.character {
+    position: absolute;
+    bottom: -50px;
+    width: 150px;
+    height: 200px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    z-index: 1;
+    transition: all 0.5s ease;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+}
+
+.character.detective {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"><path d="M50,20 Q60,10 70,20 Q80,30 70,40 Q60,50 50,40 Q40,50 30,40 Q20,30 30,20 Q40,10 50,20" fill="%23333"/><circle cx="50" cy="30" r="5" fill="%23fff"/><circle cx="50" cy="30" r="2" fill="%23000"/><path d="M45,35 Q50,40 55,35" stroke="%23000" fill="none" stroke-width="1"/><path d="M30,60 L70,60 L65,120 L60,150 L40,150 L35,120 Z" fill="%234a5c6a"/><path d="M30,60 L20,55 L15,70 L25,75 M70,60 L80,55 L85,70 L75,75" fill="%234a5c6a"/><path d="M40,150 L35,180 L45,180 M60,150 L65,180 L55,180" fill="%23333"/><path d="M50,80 L50,100" stroke="%23000" stroke-width="2"/><path d="M40,90 L60,90" stroke="%23000" stroke-width="2"/><path d="M50,120 L50,140" stroke="%23000" stroke-width="2"/><path d="M40,130 L60,130" stroke="%23000" stroke-width="2"/><path d="M50,20 L50,40" stroke="%23fff" stroke-width="2"/></svg>');
+    left: 50%;
+    transform: translateX(-50%);
+    animation: float 3s ease-in-out infinite;
+}
+
+.character.victim {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"><path d="M50,20 Q60,10 70,20 Q80,30 70,40 Q60,50 50,40 Q40,50 30,40 Q20,30 30,20 Q40,10 50,20" fill="%23ffcc00"/><circle cx="50" cy="30" r="5" fill="%23fff"/><circle cx="50" cy="30" r="2" fill="%23000"/><path d="M45,35 Q50,40 55,35" stroke="%23000" fill="none" stroke-width="1"/><path d="M30,60 L70,60 L65,120 L60,150 L40,150 L35,120 Z" fill="%23e94560"/><path d="M30,60 L20,55 L15,70 L25,75 M70,60 L80,55 L85,70 L75,75" fill="%23e94560"/><path d="M40,150 L35,180 L45,180 M60,150 L65,180 L55,180" fill="%23333"/><path d="M50,80 L50,100" stroke="%23000" stroke-width="2"/><path d="M40,90 L60,90" stroke="%23000" stroke-width="2"/><path d="M50,120 L50,140" stroke="%23000" stroke-width="2"/><path d="M40,130 L60,130" stroke="%23000" stroke-width="2"/><path d="M50,20 L50,40" stroke="%23fff" stroke-width="2"/></svg>');
+    left: 20%;
+    animation: float 3.5s ease-in-out infinite 0.5s;
+}
+
+.character.assassin {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"><path d="M50,20 Q60,10 70,20 Q80,30 70,40 Q60,50 50,40 Q40,50 30,40 Q20,30 30,20 Q40,10 50,20" fill="%23333"/><circle cx="50" cy="30" r="5" fill="%23fff"/><circle cx="50" cy="30" r="2" fill="%23000"/><path d="M45,35 Q50,40 55,35" stroke="%23000" fill="none" stroke-width="1"/><path d="M30,60 L70,60 L65,120 L60,150 L40,150 L35,120 Z" fill="%231a1a2e"/><path d="M30,60 L20,55 L15,70 L25,75 M70,60 L80,55 L85,70 L75,75" fill="%231a1a2e"/><path d="M40,150 L35,180 L45,180 M60,150 L65,180 L55,180" fill="%23333"/><path d="M50,80 L50,100" stroke="%23000" stroke-width="2"/><path d="M40,90 L60,90" stroke="%23000" stroke-width="2"/><path d="M50,120 L50,140" stroke="%23000" stroke-width="2"/><path d="M40,130 L60,130" stroke="%23000" stroke-width="2"/><path d="M50,20 L50,40" stroke="%23fff" stroke-width="2"/><path d="M60,25 L70,15 M70,25 L60,15" stroke="%23ff0000" stroke-width="2"/></svg>');
+    right: 20%;
+    animation: float 4s ease-in-out infinite 0.7s;
+}
+
+/* Efeitos de Rolagem */
+.scroll-effect {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+.scroll-effect.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shine {
+    0% { transform: rotate(45deg) translate(-10%, -10%); }
+    100% { transform: rotate(45deg) translate(10%, 10%); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-5px); }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .card {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .character {
+        width: 120px;
+        height: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .character {
+        width: 100px;
+        height: 140px;
+    }
+}
+
+/* Efeitos Especiais para Papéis */
+#role-card[data-role="detective"] {
+    border-top: 5px solid #0f3460;
+}
+
+#role-card[data-role="victim"] {
+    border-top: 5px solid #e94560;
+}
+
+#role-card[data-role="assassin"] {
+    border-top: 5px solid #333;
+}
+
+#role-card[data-role="detective"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #0f3460, #4a5c6a, #0f3460);
+    animation: progress 3s linear infinite;
+}
+
+#role-card[data-role="victim"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #e94560, #ff6b81, #e94560);
+    animation: progress 3s linear infinite;
+}
+
+#role-card[data-role="assassin"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #333, #666, #333);
+    animation: progress 3s linear infinite;
+}
+
+@keyframes progress {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+/* Efeito de Revelação */
+.reveal-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.reveal-effect.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.reveal-content {
+    background: #1a1a2e;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 80%;
+    text-align: center;
+    transform: scale(0.8);
+    transition: transform 0.5s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    border: 2px solid #e94560;
+}
+
+.reveal-effect.active .reveal-content {
+    transform: scale(1);
+}
+
+/* Adicionando personagens dinamicamente */
+#role-card[data-role="detective"] .character.detective,
+#role-card[data-role="victim"] .character.victim,
+#role-card[data-role="assassin"] .character.assassin {
+    display: block;
+}
+
+/* Efeito de suspense */
+.suspense {
+    position: relative;
+}
+
+.suspense::before {
+    content: '?';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    color: rgba(255, 255, 255, 0.1);
+    z-index: 0;
+}
+</style>
 <body>
     <div class="container" id="login-container">
         <div class="card">
@@ -589,6 +878,14 @@
                 console.error("Erro ao revelar papel:", error);
                 alert("Erro ao revelar papel. Verifique o console para mais detalhes.");
             });
+            // Dentro da função revealRole(), após definir o papel:
+const roleCard = document.getElementById('role-card');
+roleCard.setAttribute('data-role', playerRole);
+
+// Adiciona o personagem correspondente
+const characterDiv = document.createElement('div');
+characterDiv.className = `character ${playerRole}`;
+roleCard.appendChild(characterDiv);
         }
 
         // Reinicia a sala (apenas host)
