@@ -345,9 +345,9 @@ input[type="text"]:focus {
 /* Personagens */
 .character {
     position: absolute;
-    bottom: -30px;
-    width: 250px;
-    height: 300px;
+    bottom: -50px;
+    width: 150px;
+    height: 200px;
     z-index: 1;
     transition: all 0.5s ease;
     filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
@@ -363,26 +363,19 @@ input[type="text"]:focus {
 }
 
 .character.detective {
-    left: 45%;
+    left: 50%;
     transform: translateX(-50%);
     animation: float 3s ease-in-out infinite;
 }
 
 .character.victim {
-    left: 15%;
+    left: 20%;
     animation: float 3.5s ease-in-out infinite 0.5s;
 }
 
 .character.assassin {
-    right: 15%;
+    right: 20%;
     animation: float 4s ease-in-out infinite 0.7s;
-}
-
-    .character img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center bottom;
 }
 
 /* Efeitos de Rolagem */
@@ -569,7 +562,6 @@ input[type="text"]:focus {
 </style>
 <body>
   <div class="bg-blur"></div>
-  <!-- Seu conteúdo principal aqui -->
     <div class="container" id="login-container">
         <div class="card">
             <h1><i class="fas fa-search"></i> Jogo de Detetive</h1>
@@ -595,7 +587,7 @@ input[type="text"]:focus {
             </div>
             <div id="host-controls" style="display: none;">
                 <button id="start-game" class="btn-primary">Iniciar Jogo</button>
-                <button id="reset-game" class="btn-danger">Reiniciar Sala</button>
+                <button id="return-to-lobby-btn" class="btn-danger">Encerrar Jogo (Lobby)</button>
             </div>
             <button id="leave-room" class="btn-secondary">Sair da Sala</button>
         </div>
@@ -608,8 +600,9 @@ input[type="text"]:focus {
                 <div id="role-description"></div>
                 <div id="game-instructions"></div>
             </div>
-            <div id="game-actions" style="display: none;">
+            <div id="game-actions">
                 <button id="reveal-role" class="btn-primary">Revelar Meu Papel</button>
+                <button id="restart-game-btn" class="btn-danger" style="display: none;">Reiniciar Jogo</button>
             </div>
         </div>
     </div>
@@ -638,7 +631,7 @@ input[type="text"]:focus {
         let playerId = "";
         let isHost = false;
         let playerRole = "";
-        let gameStarted = false;
+        let gameStarted = false; // Estado local do cliente
 
         // Elementos da DOM
         const loginContainer = document.getElementById('login-container');
@@ -652,27 +645,28 @@ input[type="text"]:focus {
         const playersList = document.getElementById('players-ul');
         const hostControls = document.getElementById('host-controls');
         const startGameBtn = document.getElementById('start-game');
-        const resetGameBtn = document.getElementById('reset-game');
+        const returnToLobbyBtn = document.getElementById('return-to-lobby-btn');
         const leaveRoomBtn = document.getElementById('leave-room');
         const roleTitle = document.getElementById('role-title');
         const roleDescription = document.getElementById('role-description');
         const gameInstructions = document.getElementById('game-instructions');
         const gameActions = document.getElementById('game-actions');
         const revealRoleBtn = document.getElementById('reveal-role');
+        const restartGameBtn = document.getElementById('restart-game-btn');
+
 
         // Event Listeners
         joinRoomBtn.addEventListener('click', joinRoom);
         createRoomBtn.addEventListener('click', createRoom);
         startGameBtn.addEventListener('click', startGame);
-        resetGameBtn.addEventListener('click', resetRoom);
+        returnToLobbyBtn.addEventListener('click', returnToLobby);
         leaveRoomBtn.addEventListener('click', leaveRoom);
         revealRoleBtn.addEventListener('click', revealRole);
+        restartGameBtn.addEventListener('click', startGame); // O botão de reiniciar chama a mesma função de iniciar
 
         // Função para gerar um ID aleatório
         function generateId() {
-            return 'xxxx-xxxx-xxx-xxxx'.replace(/[x]/g, function() {
-                return Math.floor(Math.random() * 16).toString(16);
-            });
+            return 'xxxx-xxxx-xxx-xxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
         }
 
         // Função para criar uma sala
@@ -693,19 +687,12 @@ input[type="text"]:focus {
                 host: playerId,
                 gameStarted: false,
                 players: {
-                    [playerId]: {
-                        name: playerName,
-                        role: "",
-                        revealed: false
-                    }
+                    [playerId]: { name: playerName, role: "", revealed: false }
                 }
             }).then(() => {
                 showLobby();
                 monitorRoom();
-            }).catch(error => {
-                console.error("Erro ao criar sala:", error);
-                alert("Erro ao criar sala. Verifique o console para mais detalhes.");
-            });
+            }).catch(error => console.error("Erro ao criar sala:", error));
         }
 
         // Função para entrar em uma sala existente
@@ -719,7 +706,6 @@ input[type="text"]:focus {
             }
             
             playerId = generateId();
-            
             const roomRef = database.ref(`rooms/${roomCode}`);
             
             roomRef.once('value').then(snapshot => {
@@ -728,28 +714,18 @@ input[type="text"]:focus {
                     return;
                 }
                 
-                const roomData = snapshot.val();
-                
-                if (roomData.gameStarted) {
+                if (snapshot.val().gameStarted) {
                     alert("O jogo já começou nesta sala. Você não pode entrar agora.");
                     return;
                 }
                 
                 roomRef.child(`players/${playerId}`).set({
-                    name: playerName,
-                    role: "",
-                    revealed: false
+                    name: playerName, role: "", revealed: false
                 }).then(() => {
                     showLobby();
                     monitorRoom();
-                }).catch(error => {
-                    console.error("Erro ao entrar na sala:", error);
-                    alert("Erro ao entrar na sala. Verifique o console para mais detalhes.");
-                });
-            }).catch(error => {
-                console.error("Erro ao verificar sala:", error);
-                alert("Erro ao verificar sala. Verifique o console para mais detalhes.");
-            });
+                }).catch(error => console.error("Erro ao entrar na sala:", error));
+            }).catch(error => console.error("Erro ao verificar sala:", error));
         }
 
         // Função para mostrar o lobby
@@ -757,17 +733,11 @@ input[type="text"]:focus {
             loginContainer.style.display = 'none';
             lobbyContainer.style.display = 'flex';
             gameContainer.style.display = 'none';
-            
             displayRoomCode.textContent = roomCode;
-            
-            if (isHost) {
-                hostControls.style.display = 'block';
-            } else {
-                hostControls.style.display = 'none';
-            }
+            hostControls.style.display = isHost ? 'block' : 'none';
         }
 
-        // Função para monitorar mudanças na sala
+        // Função para monitorar mudanças na sala (LÓGICA PRINCIPAL)
         function monitorRoom() {
             const roomRef = database.ref(`rooms/${roomCode}`);
             
@@ -780,242 +750,166 @@ input[type="text"]:focus {
                     return;
                 }
                 
+                const myPlayerData = roomData.players ? roomData.players[playerId] : null;
+                if (!myPlayerData && roomCode) {
+                    console.log("Dados do jogador não encontrados. Retornando à tela inicial.");
+                    window.location.reload();
+                    return;
+                }
+                
                 updatePlayersList(roomData.players);
                 
-                if (roomData.gameStarted && !gameStarted) {
-                    gameStarted = true;
-                    startPlayerGame(roomData.players[playerId].role);
+                if (roomData.gameStarted) {
+                    // O jogo está ativo no servidor
+                    if (!gameStarted || !myPlayerData.revealed) {
+                        // Condição para iniciar/reiniciar a tela do jogo:
+                        // 1. O jogo não tinha começado localmente (!gameStarted)
+                        // 2. O jogo já estava rodando, mas meu papel não foi revelado (um reinício)
+                        gameStarted = true; // Sincroniza o estado local
+                        startPlayerGame(myPlayerData.role);
+                    }
+                } else {
+                    // O jogo não está ativo no servidor
+                    if (gameStarted) {
+                        // O jogo estava ativo localmente, mas foi encerrado. Voltar ao lobby.
+                        gameStarted = false;
+                        playerRole = "";
+                        showLobby();
+                    }
                 }
-                
-                if (!roomData.gameStarted && gameStarted) {
-                    gameStarted = false;
-                    showLobby();
-                }
-            }, error => {
-                console.error("Erro ao monitorar sala:", error);
-            });
+            }, error => console.error("Erro ao monitorar sala:", error));
         }
 
-        // Atualiza a lista de jogadores
+        // Atualiza a lista de jogadores na UI
         function updatePlayersList(players) {
             playersList.innerHTML = '';
-            
             for (const [id, player] of Object.entries(players || {})) {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>${player.name}</span>
-                    ${id === playerId ? '<span class="you-badge">(Você)</span>' : ''}
-                    ${player.role && player.revealed ? `<span class="role-badge">${getRoleName(player.role)}</span>` : ''}
+                    <div>
+                        ${id === playerId ? '<span class="you-badge">(Você)</span>' : ''}
+                        ${player.role && player.revealed ? `<span class="role-badge">${getRoleName(player.role)}</span>` : ''}
+                    </div>
                 `;
                 playersList.appendChild(li);
             }
         }
 
-        // Inicia o jogo (apenas host)
+        // Inicia ou Reinicia o jogo (apenas host)
         function startGame() {
+            if (!isHost) return;
             const roomRef = database.ref(`rooms/${roomCode}`);
             
             roomRef.once('value').then(snapshot => {
-                const roomData = snapshot.val();
-                const players = roomData.players;
+                const players = snapshot.val().players;
                 const playerIds = Object.keys(players);
-                const playerCount = playerIds.length;
                 
-                if (playerCount < 3) {
-                    alert("São necessários pelo menos 3 jogadores para começar o jogo.");
+                if (playerIds.length < 3) {
+                    alert("São necessários pelo menos 3 jogadores para começar.");
                     return;
                 }
                 
-                const roles = assignRoles(playerCount);
+                const roles = assignRoles(playerIds.length);
+                const updates = { gameStarted: true };
                 
-                const updates = {};
                 playerIds.forEach((id, index) => {
-                    updates[`players/${id}/role`] = roles[index];
-                    updates[`players/${id}/revealed`] = false;
+                    updates[`/players/${id}/role`] = roles[index];
+                    updates[`/players/${id}/revealed`] = false;
                 });
                 
-                updates['gameStarted'] = true;
-                
-                roomRef.update(updates).catch(error => {
-                    console.error("Erro ao iniciar jogo:", error);
-                    alert("Erro ao iniciar jogo. Verifique o console para mais detalhes.");
-                });
-            }).catch(error => {
-                console.error("Erro ao obter dados da sala:", error);
-                alert("Erro ao obter dados da sala. Verifique o console para mais detalhes.");
-            });
+                roomRef.update(updates).catch(error => console.error("Erro ao iniciar/reiniciar jogo:", error));
+            }).catch(error => console.error("Erro ao obter dados da sala:", error));
         }
 
-        // Atribui os papéis (1 assassino, 1 detetive, o resto vítimas)
+        // Atribui os papéis
         function assignRoles(playerCount) {
-            const roles = [];
-            
-            // Garantir papéis únicos obrigatórios
-            roles.push('assassin');  // 1 assassino
-            roles.push('detective'); // 1 detetive
-            
-            // Todos os demais são vítimas
-            for (let i = 0; i < playerCount - 2; i++) {
+            const roles = ['assassin', 'detective'];
+            while (roles.length < playerCount) {
                 roles.push('victim');
             }
-            
-            // Embaralha para evitar previsibilidade
             return shuffleArray(roles);
         }
 
         // Embaralha um array
         function shuffleArray(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
+            for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                [array[i], array[j]] = [array[j], array[i]];
             }
-            return newArray;
+            return array;
         }
 
-        // Inicia o jogo para um jogador
+        // Prepara a tela do jogador para o jogo
         function startPlayerGame(role) {
             playerRole = role;
             loginContainer.style.display = 'none';
             lobbyContainer.style.display = 'none';
             gameContainer.style.display = 'flex';
             
+            // Reseta a UI para o estado de "pré-revelação"
             gameActions.style.display = 'block';
-            roleTitle.textContent = "Bem-vindo ao Jogo";
-            roleDescription.textContent = "Clique no botão abaixo para revelar seu papel no jogo.";
-            gameInstructions.textContent = "Não compartilhe seu papel com outros jogadores até o momento apropriado!";
+            revealRoleBtn.style.display = 'block';
+            roleTitle.innerHTML = "Bem-vindo ao Jogo";
+            roleDescription.textContent = "Clique no botão abaixo para revelar seu papel.";
+            gameInstructions.innerHTML = "Não compartilhe seu papel com outros jogadores até o momento apropriado!";
+            
+            const roleCard = document.getElementById('role-card');
+            const existingCharacter = roleCard.querySelector('.character');
+            if (existingCharacter) existingCharacter.remove();
+            roleCard.removeAttribute('data-role');
+            
+            // Mostra o botão de reiniciar apenas para o host
+            restartGameBtn.style.display = isHost ? 'block' : 'none';
         }
 
         // Revela o papel do jogador
-function revealRole() {
-    const roomRef = database.ref(`rooms/${roomCode}/players/${playerId}`);
-    roomRef.update({ revealed: true }).then(() => {
-        gameActions.style.display = 'none';
-        
-        // Configurações específicas para cada papel
-        const roleConfig = {
-            'assassin': {
-                title: '<i class="fas fa-skull"></i> Assassino',
-                description: "Você é o assassino! Seu objetivo é eliminar uma das vítimas sem ser descoberto pelo detetive.",
-                instructions: `
-                    <h3>Instruções:</h3>
-                    <ul>
-                        <li>Você deve eliminar uma vítima sem ser pego pelo detetive.</li>
-                        <li>Tente se misturar com as vítimas e não chamar atenção.</li>
-                        <li>Se você for descoberto pelo detetive, você perde.</li>
-                    </ul>
-                `,
-                gif: 'https://usagif.com/wp-content/uploads/gif-animation-wink-1.gif' // GIF de assassino
-            },
-            'victim': {
-                title: '<i class="fas fa-user-injured"></i> Vítima',
-                description: "Você é uma vítima! O assassino está tentando te eliminar. Tente sobreviver e ajudar o detetive.",
-                instructions: `
-                    <h3>Instruções:</h3>
-                    <ul>
-                        <li>Você não sabe quem é o assassino.</li>
-                        <li>Tente descobrir quem é o assassino junto com o detetive.</li>
-                        <li>Se o assassino for descoberto, você vence.</li>
-                    </ul>
-                `,
-                gif: 'https://media4.giphy.com/media/v1.Y2lkPTZjMDliOTUyajB3aGw5cDF6cTNvYWtlbG5meHZ2Znl5cXBiNW1hMzB2MWZ6dzRxaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E0LowvJoubWbnodq73/giphy.gif' // GIF de vítima assustada
-            },
-            'detective': {
-                title: '<i class="fas fa-search"></i> Detetive',
-                description: "Você é o detetive! Seu objetivo é descobrir quem é o assassino antes que ele elimine uma vítima.",
-                instructions: `
-                    <h3>Instruções:</h3>
-                    <ul>
-                        <li>Investigue os outros jogadores e colete pistas.</li>
-                        <li>Proteja as vítimas e descubra o assassino.</li>
-                        <li>Se você descobrir o assassino, você e as vítimas vencem.</li>
-                    </ul>
-                `,
-                gif: 'https://i.pinimg.com/originals/7a/62/3f/7a623ff296a6b44cf0183c72c4003457.gif' // GIF de detetive
-            }
-        };
+        function revealRole() {
+            database.ref(`rooms/${roomCode}/players/${playerId}`).update({ revealed: true }).then(() => {
+                revealRoleBtn.style.display = 'none'; // Esconde apenas o botão de revelar
+                
+                const roleConfig = {
+                    'assassin': { title: '<i class="fas fa-skull"></i> Assassino', description: "Seu objetivo é eliminar uma vítima sem ser descoberto.", instructions: '<ul><li>Aja de forma suspeita para confundir o detetive.</li><li>Seja discreto ao escolher sua vítima.</li></ul>', gif: 'https://i.gifer.com/PrjO.gif' },
+                    'victim': { title: '<i class="fas fa-user-injured"></i> Vítima', description: "Tente sobreviver e ajudar o detetive a encontrar o assassino.", instructions: '<ul><li>Preste atenção no comportamento de todos.</li><li>Tente convencer o detetive de sua inocência.</li></ul>', gif: 'https://i.gifer.com/9wmP.gif' },
+                    'detective': { title: '<i class="fas fa-search"></i> Detetive', description: "Sua missão é descobrir quem é o assassino.", instructions: '<ul><li>Observe, questione e analise as pistas.</li><li>Você deve acusar o assassino para vencer.</li></ul>', gif: 'https://i.pinimg.com/originals/7a/62/3f/7a623ff296a6b44cf0183c72c4003457.gif' }
+                };
 
-        // Aplica as configurações baseadas no papel
-        const config = roleConfig[playerRole];
-        roleTitle.innerHTML = config.title;
-        roleDescription.textContent = config.description;
-        gameInstructions.innerHTML = config.instructions;
+                const config = roleConfig[playerRole];
+                roleTitle.innerHTML = config.title;
+                roleDescription.textContent = config.description;
+                gameInstructions.innerHTML = `<h3>Instruções:</h3>${config.instructions}`;
 
-        // Configura o personagem GIF
-        const roleCard = document.getElementById('role-card');
-        roleCard.setAttribute('data-role', playerRole);
+                const roleCard = document.getElementById('role-card');
+                roleCard.setAttribute('data-role', playerRole);
+                
+                const characterContainer = document.createElement('div');
+                characterContainer.className = `character ${playerRole}`;
+                characterContainer.innerHTML = `<img src="${config.gif}" alt="${playerRole}">`;
+                roleCard.appendChild(characterContainer);
 
-        // Remove qualquer personagem existente
-        const existingCharacter = roleCard.querySelector('.character');
-        if (existingCharacter) {
-            roleCard.removeChild(existingCharacter);
+            }).catch(error => console.error("Erro ao revelar papel:", error));
         }
 
-        // Cria o container do GIF
-        const characterContainer = document.createElement('div');
-        characterContainer.className = `character ${playerRole}`;
-        
-        // Para melhor controle, podemos usar tag img em vez de background-image
-        characterContainer.innerHTML = `
-            <img src="${config.gif}" alt="${playerRole}" 
-                 style="width: 100%; height: 100%; object-fit: contain;">
-        `;
-        
-        roleCard.appendChild(characterContainer);
-
-    }).catch(error => {
-        console.error("Erro ao revelar papel:", error);
-        alert("Erro ao revelar papel. Verifique o console para mais detalhes.");
-    });
-}
-
-        // Reinicia a sala (apenas host)
-        function resetRoom() {
-            const roomRef = database.ref(`rooms/${roomCode}`);
-            
-            roomRef.once('value').then(snapshot => {
-                const players = snapshot.val().players;
-                const updates = {};
-                
-                for (const id in players) {
-                    updates[`players/${id}/role`] = "";
-                    updates[`players/${id}/revealed`] = false;
-                }
-                
-                updates['gameStarted'] = false;
-                roomRef.update(updates).catch(error => {
-                    console.error("Erro ao reiniciar sala:", error);
-                    alert("Erro ao reiniciar sala. Verifique o console para mais detalhes.");
-                });
-            }).catch(error => {
-                console.error("Erro ao obter dados da sala:", error);
-                alert("Erro ao obter dados da sala. Verifique o console para mais detalhes.");
-            });
+        // Encerra o jogo e retorna todos ao lobby (apenas host)
+        function returnToLobby() {
+            if (!isHost) return;
+            database.ref(`rooms/${roomCode}`).update({ gameStarted: false })
+                .catch(error => console.error("Erro ao retornar ao lobby:", error));
         }
 
         // Sai da sala
         function leaveRoom() {
-            const roomRef = database.ref(`rooms/${roomCode}/players/${playerId}`);
-            
-            roomRef.remove().then(() => {
-                window.location.reload();
-            }).catch(error => {
-                console.error("Erro ao sair da sala:", error);
-                alert("Erro ao sair da sala. Verifique o console para mais detalhes.");
-            });
-
-            // Lógica adicional se o host sair (opcional, pode deletar a sala)
+            const playerRef = database.ref(`rooms/${roomCode}/players/${playerId}`);
+            playerRef.remove().then(() => window.location.reload())
+                .catch(error => console.error("Erro ao sair da sala:", error));
         }
 
         // Retorna o nome do papel para exibição
         function getRoleName(role) {
-            switch (role) {
-                case 'assassin': return 'Assassino';
-                case 'victim': return 'Vítima';
-                case 'detective': return 'Detetive';
-                default: return 'Vítima';
-            }
+            const names = { assassin: 'Assassino', victim: 'Vítima', detective: 'Detetive' };
+            return names[role] || 'Desconhecido';
         }
     </script>
 </body>
 </html>
+
