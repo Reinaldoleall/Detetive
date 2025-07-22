@@ -2,13 +2,215 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jogo de Detetive</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 </head>
 <style>
+  /* Estilos para o chat */
+  #chat-container {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 350px;
+    height: 300px;
+    background: rgba(30, 30, 60, 0.95);
+    border-radius: 10px;
+    border: 1px solid #e94560;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    z-index: 999;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+  }
+
+  #chat-container.minimized {
+    height: 40px;
+  }
+
+  #chat-container.minimized #chat-messages,
+  #chat-container.minimized #chat-input {
+    display: none;
+  }
+
+  #chat-header {
+    padding: 10px 15px;
+    background: rgba(15, 52, 96, 0.7);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e94560;
+    cursor: pointer;
+  }
+
+  #chat-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  #chat-controls button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 0.9rem;
+  }
+
+  #chat-controls button:hover {
+    color: #e94560;
+  }
+
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .message {
+    display: flex;
+    max-width: 90%;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .message.sent {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .message.received {
+    align-self: flex-start;
+  }
+
+  .message-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(233, 69, 96, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    flex-shrink: 0;
+    font-weight: bold;
+  }
+
+  .message-content {
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: calc(100% - 40px);
+    word-wrap: break-word;
+  }
+
+  .message.sent .message-content {
+    background: rgba(233, 69, 96, 0.2);
+    border-bottom-right-radius: 5px;
+  }
+
+  .message.received .message-content {
+    background: rgba(15, 52, 96, 0.5);
+    border-bottom-left-radius: 5px;
+  }
+
+  .message-sender {
+    font-weight: bold;
+    margin-bottom: 2px;
+    font-size: 0.8rem;
+  }
+
+  .message-text {
+    margin: 0;
+  }
+
+  .message.dead {
+    opacity: 0.6;
+    position: relative;
+  }
+
+  .message.dead::after {
+    content: "☠️ MORTO";
+    position: absolute;
+    top: -10px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+  }
+
+  #chat-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  #chat-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(20, 20, 40, 0.8);
+    color: white;
+    font-size: 0.9rem;
+  }
+
+  #chat-input input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.3);
+  }
+
+  #chat-input button {
+    background: rgba(233, 69, 96, 0.5);
+    border: none;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  #chat-input button:hover {
+    background: rgba(233, 69, 96, 0.8);
+  }
+
+  /* Notificação de morte */
+  .death-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: #e94560;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e94560;
+    z-index: 1001;
+    text-align: center;
+    animation: pulse 2s infinite;
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+  }
+
+  @keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.05); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+
   /* Estilos Gerais */
 /* Estilos Gerais */
 *, *::before, *::after {
@@ -86,9 +288,9 @@ input[type="text"] {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    animation: fadeIn 0.8s ease-out;
+    min-height: 50vh;
+    padding: 30px;
+    animation: fadeIn 4.9s ease-out;
 }
 
 .card {
@@ -606,9 +808,800 @@ input[type="text"]:focus {
             </div>
         </div>
     </div>
+    
+    <div id="chat-container" class="minimized">
+  <div id="chat-header">
+    <h3><i class="fas fa-comments"></i> Chat do Jogo</h3>
+    <div id="chat-controls">
+      <button id="minimize-chat"><i class="fas fa-window-minimize"></i></button>
+      <button id="close-chat"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+  <div id="chat-messages"></div>
+  <div id="chat-input">
+    <input type="text" id="chat-message" placeholder="Digite sua mensagem..." maxlength="200">
+    <button id="send-message"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+// Chatbot Tutor
+const gameTutor = {
+    isActive: true,
+    isMinimized: false,
+    currentGuide: null,
+    userStatus: 'new', // new, in_lobby, in_game
+    chatMessages: [],
+    botThinking: false,
+
+    // Elementos do DOM
+    container: null,
+    chatWindow: null,
+    messageContainer: null,
+    inputField: null,
+    sendButton: null,
+    minimizeButton: null,
+    closeButton: null,
+
+    // Inicializa o chatbot
+    init: function() {
+        // Cria a estrutura do chatbot
+        this.createChatUI();
+        
+        // Adiciona mensagem de boas-vindas
+        this.addBotMessage("Olá! Sou seu assistente para o Jogo de Detetive. Posso te ajudar a criar uma sala, entrar em uma ou explicar as regras. Por onde quer começar?");
+        
+        // Monitora o estado do jogo para oferecer ajuda contextual
+        this.monitorGameState();
+        
+        // Configura eventos
+        this.setupEvents();
+    },
+
+    // Cria a interface do chat
+    createChatUI: function() {
+        // Container principal
+        this.container = document.createElement('div');
+        this.container.id = 'game-tutor';
+        this.container.className = 'game-tutor-container';
+        
+        // Cabeçalho do chat
+        const header = document.createElement('div');
+        header.className = 'game-tutor-header';
+        header.innerHTML = `
+            <h3><i class="fas fa-robot"></i> Assistente do Jogo</h3>
+            <div class="game-tutor-controls">
+                <button id="tutor-minimize"><i class="fas fa-window-minimize"></i></button>
+                <button id="tutor-close"><i class="fas fa-times"></i></button>
+            </div>
+        `;
+        
+        // Janela de mensagens
+        this.chatWindow = document.createElement('div');
+        this.chatWindow.className = 'game-tutor-chat';
+        
+        this.messageContainer = document.createElement('div');
+        this.messageContainer.className = 'game-tutor-messages';
+        this.chatWindow.appendChild(this.messageContainer);
+        
+        // Área de entrada
+        const inputArea = document.createElement('div');
+        inputArea.className = 'game-tutor-input';
+        
+        this.inputField = document.createElement('input');
+        this.inputField.type = 'text';
+        this.inputField.placeholder = 'Digite sua mensagem...';
+        this.inputField.id = 'tutor-input';
+        
+        this.sendButton = document.createElement('button');
+        this.sendButton.id = 'tutor-send';
+        this.sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        
+        inputArea.appendChild(this.inputField);
+        inputArea.appendChild(this.sendButton);
+        
+        // Monta a estrutura
+        this.container.appendChild(header);
+        this.container.appendChild(this.chatWindow);
+        this.container.appendChild(inputArea);
+        
+        // Adiciona ao body
+        document.body.appendChild(this.container);
+        
+        // Armazena referências dos botões
+        this.minimizeButton = document.getElementById('tutor-minimize');
+        this.closeButton = document.getElementById('tutor-close');
+    },
+
+    // Configura eventos
+    setupEvents: function() {
+        // Enviar mensagem ao clicar no botão
+        this.sendButton.addEventListener('click', () => this.processUserInput());
+        
+        // Enviar mensagem ao pressionar Enter
+        this.inputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.processUserInput();
+        });
+        
+        // Minimizar/restaurar chat
+        this.minimizeButton.addEventListener('click', () => this.toggleMinimize());
+        
+        // Fechar chat (não remove, apenas esconde)
+        this.closeButton.addEventListener('click', () => {
+            this.container.style.display = 'none';
+        });
+    },
+
+    // Alterna entre minimizado e normal
+    toggleMinimize: function() {
+        this.isMinimized = !this.isMinimized;
+        
+        if (this.isMinimized) {
+            this.chatWindow.style.display = 'none';
+            this.container.querySelector('.game-tutor-input').style.display = 'none';
+            this.minimizeButton.innerHTML = '<i class="fas fa-window-maximize"></i>';
+            this.container.style.height = 'auto';
+        } else {
+            this.chatWindow.style.display = 'block';
+            this.container.querySelector('.game-tutor-input').style.display = 'flex';
+            this.minimizeButton.innerHTML = '<i class="fas fa-window-minimize"></i>';
+            this.container.style.height = '400px';
+        }
+    },
+
+    // Adiciona mensagem do bot
+    addBotMessage: function(text, options = []) {
+        this.botThinking = true;
+        
+        // Cria elemento da mensagem
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'bot-message';
+        
+        // Adiciona ícone do bot
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.innerHTML = '<i class="fas fa-robot"></i>';
+        
+        // Adiciona conteúdo da mensagem
+        const content = document.createElement('div');
+        content.className = 'message-content';
+        content.innerHTML = `<p>${text}</p>`;
+        
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(content);
+        
+        // Adiciona ao container
+        this.messageContainer.appendChild(messageDiv);
+        
+        // Adiciona opções de resposta rápida se houver
+        if (options.length > 0) {
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'message-options';
+            
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option.text;
+                btn.addEventListener('click', () => {
+                    this.addUserMessage(option.text);
+                    option.action();
+                });
+                optionsDiv.appendChild(btn);
+            });
+            
+            messageDiv.appendChild(optionsDiv);
+        }
+        
+        // Rolagem automática para a nova mensagem
+        this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+        
+        // Simula tempo de digitação
+        setTimeout(() => {
+            this.botThinking = false;
+        }, 1000);
+    },
+
+    // Adiciona mensagem do usuário
+    addUserMessage: function(text) {
+        if (!text.trim()) return;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'user-message';
+        
+        const content = document.createElement('div');
+        content.className = 'message-content';
+        content.innerHTML = `<p>${text}</p>`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.innerHTML = '<i class="fas fa-user"></i>';
+        
+        messageDiv.appendChild(content);
+        messageDiv.appendChild(avatar);
+        
+        this.messageContainer.appendChild(messageDiv);
+        this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+        
+        // Limpa o campo de entrada
+        this.inputField.value = '';
+    },
+
+    // Processa a entrada do usuário
+    processUserInput: function() {
+        const inputText = this.inputField.value.trim();
+        if (!inputText || this.botThinking) return;
+        
+        this.addUserMessage(inputText);
+        
+        // Respostas baseadas no estado atual
+        if (this.userStatus === 'new') {
+            this.handleNewUserInput(inputText);
+        } else if (this.userStatus === 'in_lobby') {
+            this.handleLobbyUserInput(inputText);
+        } else if (this.userStatus === 'in_game') {
+            this.handleGameUserInput(inputText);
+        }
+    },
+
+    // Manipula entrada do usuário na tela inicial
+    handleNewUserInput: function(inputText) {
+        const lowerInput = inputText.toLowerCase();
+        
+        if (lowerInput.includes('criar') || lowerInput.includes('nova sala')) {
+            this.guideCreateRoom();
+        } else if (lowerInput.includes('entrar') || lowerInput.includes('sala existente')) {
+            this.guideJoinRoom();
+        } else if (lowerInput.includes('regras') || lowerInput.includes('como jogar')) {
+            this.explainRules();
+        } else if (lowerInput.includes('ajuda') || lowerInput.includes('assistência')) {
+            this.showHelpOptions();
+        } else {
+            this.addBotMessage("Não entendi completamente. Você quer criar uma nova sala ou entrar em uma existente? Ou prefere que eu explique as regras do jogo?", [
+                { text: "Criar nova sala", action: () => this.guideCreateRoom() },
+                { text: "Entrar em sala existente", action: () => this.guideJoinRoom() },
+                { text: "Explicar as regras", action: () => this.explainRules() }
+            ]);
+        }
+    },
+
+    // Manipula entrada do usuário no lobby
+    handleLobbyUserInput: function(inputText) {
+        const lowerInput = inputText.toLowerCase();
+        
+        if (lowerInput.includes('iniciar') || lowerInput.includes('começar')) {
+            if (isHost) {
+                this.guideStartGame();
+            } else {
+                this.addBotMessage("Apenas o host da sala pode iniciar o jogo. Peça para o criador da sala clicar no botão 'Iniciar Jogo'.");
+            }
+        } else if (lowerInput.includes('sair') || lowerInput.includes('abandonar')) {
+            this.guideLeaveRoom();
+        } else if (lowerInput.includes('regras') || lowerInput.includes('como jogar')) {
+            this.explainRules();
+        } else {
+            this.addBotMessage("No lobby você pode esperar o host iniciar o jogo ou sair da sala. O que você gostaria de fazer?", [
+                { text: "Como iniciar o jogo?", action: () => this.guideStartGame() },
+                { text: "Sair da sala", action: () => this.guideLeaveRoom() },
+                { text: "Explicar as regras", action: () => this.explainRules() }
+            ]);
+        }
+    },
+
+    // Manipula entrada do usuário durante o jogo
+    handleGameUserInput: function(inputText) {
+        const lowerInput = inputText.toLowerCase();
+        
+        if (lowerInput.includes('papel') || lowerInput.includes('função')) {
+            this.explainCurrentRole();
+        } else if (lowerInput.includes('regras') || lowerInput.includes('como jogar')) {
+            this.explainRules();
+        } else if (lowerInput.includes('sair') || lowerInput.includes('abandonar')) {
+            this.guideLeaveGame();
+        } else {
+            this.addBotMessage("Durante o jogo, você pode consultar seu papel ou as regras. O que você gostaria de saber?", [
+                { text: "Explicar meu papel", action: () => this.explainCurrentRole() },
+                { text: "Relembrar as regras", action: () => this.explainRules() },
+                { text: "Como sair do jogo?", action: () => this.guideLeaveGame() }
+            ]);
+        }
+    },
+
+    // Monitora o estado do jogo para oferecer ajuda contextual
+    monitorGameState: function() {
+        setInterval(() => {
+            if (loginContainer.style.display !== 'none' && this.userStatus !== 'new') {
+                this.userStatus = 'new';
+                this.addBotMessage("Vejo que você está na tela inicial. Posso te ajudar a criar uma sala ou entrar em uma existente?", [
+                    { text: "Criar nova sala", action: () => this.guideCreateRoom() },
+                    { text: "Entrar em sala", action: () => this.guideJoinRoom() }
+                ]);
+            } else if (lobbyContainer.style.display !== 'none' && this.userStatus !== 'in_lobby') {
+                this.userStatus = 'in_lobby';
+                this.addBotMessage("Você está no lobby da sala. Quando todos estiverem prontos, o host pode iniciar o jogo.", [
+                    { text: "Como iniciar o jogo?", action: () => this.guideStartGame() },
+                    { text: "Preciso sair da sala", action: () => this.guideLeaveRoom() }
+                ]);
+            } else if (gameContainer.style.display !== 'none' && this.userStatus !== 'in_game') {
+                this.userStatus = 'in_game';
+                this.addBotMessage("O jogo começou! Revele seu papel para saber o que fazer.", [
+                    { text: "Revelar meu papel", action: () => this.suggestRevealRole() }
+                ]);
+            }
+        }, 1000);
+    },
+
+    // Guia para criar sala
+    guideCreateRoom: function() {
+        this.addBotMessage("Para criar uma nova sala:");
+        this.addBotMessage("1. Digite seu nome no campo 'Seu Nome'");
+        this.addBotMessage("2. Clique no botão 'Criar Nova Sala'");
+        this.addBotMessage("3. Compartilhe o código da sala com seus amigos");
+        
+        if (loginContainer.style.display !== 'none') {
+            this.addBotMessage("Vejo que você está na tela certa. Quer que eu destaque os elementos?", [
+                { 
+                    text: "Sim, mostre-me", 
+                    action: () => {
+                        this.highlightElement('#player-name', "Digite seu nome aqui");
+                        setTimeout(() => {
+                            this.highlightElement('#create-room', "Depois clique aqui para criar a sala");
+                        }, 3000);
+                    }
+                },
+                { text: "Não, obrigado", action: () => {} }
+            ]);
+        } else {
+            this.addBotMessage("Você precisa voltar para a tela inicial para criar uma sala.");
+        }
+    },
+
+    // Guia para entrar em sala
+    guideJoinRoom: function() {
+        this.addBotMessage("Para entrar em uma sala existente:");
+        this.addBotMessage("1. Digite seu nome no campo 'Seu Nome'");
+        this.addBotMessage("2. Digite o código da sala no campo 'Código da Sala'");
+        this.addBotMessage("3. Clique no botão 'Entrar na Sala'");
+        
+        if (loginContainer.style.display !== 'none') {
+            this.addBotMessage("Você está no lugar certo! Posso destacar os campos para você?", [
+                { 
+                    text: "Sim, por favor", 
+                    action: () => {
+                        this.highlightElement('#player-name', "Seu nome vai aqui");
+                        setTimeout(() => {
+                            this.highlightElement('#room-code', "O código da sala vai aqui");
+                            setTimeout(() => {
+                                this.highlightElement('#join-room', "Depois clique aqui para entrar");
+                            }, 3000);
+                        }, 3000);
+                    }
+                },
+                { text: "Não, entendi", action: () => {} }
+            ]);
+        } else {
+            this.addBotMessage("Você precisa estar na tela inicial para entrar em uma sala.");
+        }
+    },
+
+    // Guia para iniciar o jogo
+    guideStartGame: function() {
+        if (isHost) {
+            this.addBotMessage("Como host, você pode iniciar o jogo quando todos estiverem prontos:");
+            this.addBotMessage("1. Verifique se há pelo menos 3 jogadores na sala");
+            this.addBotMessage("2. Clique no botão 'Iniciar Jogo'");
+            this.addBotMessage("3. O sistema distribuirá os papéis automaticamente");
+            
+            if (lobbyContainer.style.display !== 'none') {
+                this.addBotMessage("Vejo que você está no lobby. Quer que eu mostre o botão para iniciar?", [
+                    { 
+                        text: "Sim, mostre-me", 
+                        action: () => this.highlightElement('#start-game', "Clique aqui para iniciar o jogo")
+                    },
+                    { text: "Já encontrei", action: () => {} }
+                ]);
+            }
+        } else {
+            this.addBotMessage("Apenas o host da sala (quem criou a sala) pode iniciar o jogo. Peça para ele clicar no botão 'Iniciar Jogo'.");
+        }
+    },
+
+    // Guia para sair da sala
+    guideLeaveRoom: function() {
+        this.addBotMessage("Para sair da sala:");
+        this.addBotMessage("1. Localize o botão 'Sair da Sala'");
+        this.addBotMessage("2. Clique nele e você voltará para a tela inicial");
+        
+        if (lobbyContainer.style.display !== 'none') {
+            this.addBotMessage("Posso destacar o botão para você?", [
+                { 
+                    text: "Sim, por favor", 
+                    action: () => this.highlightElement('#leave-room', "Clique aqui para sair da sala")
+                },
+                { text: "Não preciso", action: () => {} }
+            ]);
+        } else {
+            this.addBotMessage("Você precisa estar no lobby da sala para sair.");
+        }
+    },
+
+    // Guia para sair do jogo
+    guideLeaveGame: function() {
+        this.addBotMessage("Durante o jogo, você pode:");
+        this.addBotMessage("1. Continuar jogando até o fim");
+        this.addBotMessage("2. Se for o host, clicar em 'Encerrar Jogo' para voltar ao lobby");
+        this.addBotMessage("3. Sair completamente da sala (mas isso pode atrapalhar o jogo)");
+        
+        if (gameContainer.style.display !== 'none') {
+            this.addBotMessage("O que você gostaria de fazer?", [
+                { 
+                    text: "Sou host, quero encerrar", 
+                    action: () => {
+                        if (isHost) {
+                            this.highlightElement('#return-to-lobby-btn', "Clique aqui para encerrar o jogo e voltar ao lobby");
+                        } else {
+                            this.addBotMessage("Você não é o host desta sala. Apenas o host pode encerrar o jogo.");
+                        }
+                    }
+                },
+                { 
+                    text: "Quero sair da sala", 
+                    action: () => this.highlightElement('#leave-room', "Clique aqui para sair da sala (não recomendado durante o jogo)")
+                },
+                { text: "Vou continuar jogando", action: () => {} }
+            ]);
+        }
+    },
+
+    // Explica as regras do jogo
+    explainRules: function() {
+        this.addBotMessage("📜 <strong>Regras do Jogo de Detetive:</strong>");
+        this.addBotMessage("1. Cada jogador recebe um papel secreto: <strong>Detetive</strong>, <strong>Assassino</strong> ou <strong>Vítima</strong>");
+        this.addBotMessage("2. O objetivo do <strong>Assassino</strong> é eliminar uma vítima sem ser descoberto");
+        this.addBotMessage("3. O <strong>Detetive</strong> deve descobrir quem é o assassino");
+        this.addBotMessage("4. As <strong>Vítimas</strong> devem sobreviver e ajudar o detetive");
+        this.addBotMessage("5. Durante o jogo, os jogadores conversam e fazem acusações");
+        this.addBotMessage("6. No final, o detetive faz uma acusação final. Se acertar, o detetive ganha. Se errar, o assassino vence!");
+        
+        this.addBotMessage("Quer que eu explique algum papel em detalhes?", [
+            { text: "Explicar o Detetive", action: () => this.explainRole('detective') },
+            { text: "Explicar o Assassino", action: () => this.explainRole('assassin') },
+            { text: "Explicar a Vítima", action: () => this.explainRole('victim') },
+            { text: "Já entendi tudo", action: () => {} }
+        ]);
+    },
+
+    // Explica um papel específico
+    explainRole: function(role) {
+        const roles = {
+            detective: {
+                title: "🕵️ <strong>Detetive</strong>",
+                description: "Seu objetivo é descobrir quem é o assassino antes que ele 'mate' alguém.",
+                tips: [
+                    "Observe o comportamento de todos os jogadores",
+                    "Faça perguntas para revelar inconsistências",
+                    "Não revele que você é o detetive muito cedo",
+                    "No final, você fará uma acusação final"
+                ]
+            },
+            assassin: {
+                title: "🔪 <strong>Assassino</strong>",
+                description: "Seu objetivo é eliminar uma vítima sem ser descoberto pelo detetive.",
+                tips: [
+                    "Aja naturalmente para não levantar suspeitas",
+                    "Tente confundir o detetive com informações falsas",
+                    "Escolha cuidadosamente sua vítima",
+                    "Seja convincente ao fingir inocência"
+                ]
+            },
+            victim: {
+                title: "😨 <strong>Vítima</strong>",
+                description: "Seu objetivo é sobreviver e ajudar o detetive a identificar o assassino.",
+                tips: [
+                    "Observe quem age de forma suspeita",
+                    "Compartilhe informações com o detetive",
+                    "Não revele que você é uma vítima potencial",
+                    "Tente parecer menos suspeito que o assassino"
+                ]
+            }
+        };
+        
+        const roleInfo = roles[role];
+        this.addBotMessage(roleInfo.title);
+        this.addBotMessage(roleInfo.description);
+        this.addBotMessage("<strong>Dicas:</strong>");
+        roleInfo.tips.forEach(tip => this.addBotMessage(`• ${tip}`));
+        
+        this.addBotMessage("Quer saber sobre outro papel?", [
+            { text: "Explicar o Detetive", action: () => this.explainRole('detective') },
+            { text: "Explicar o Assassino", action: () => this.explainRole('assassin') },
+            { text: "Explicar a Vítima", action: () => this.explainRole('victim') },
+            { text: "Voltar ao jogo", action: () => {} }
+        ]);
+    },
+
+    // Explica o papel atual do jogador
+    explainCurrentRole: function() {
+        if (!playerRole) {
+            this.addBotMessage("Você ainda não revelou seu papel. Clique no botão 'Revelar Meu Papel' para descobrir.");
+            if (gameContainer.style.display !== 'none') {
+                this.addBotMessage("Posso destacar o botão para você?", [
+                    { 
+                        text: "Sim, mostre-me", 
+                        action: () => this.highlightElement('#reveal-role', "Clique aqui para revelar seu papel")
+                    },
+                    { text: "Não, obrigado", action: () => {} }
+                ]);
+            }
+            return;
+        }
+        
+        this.explainRole(playerRole);
+    },
+
+    // Sugere revelar o papel
+    suggestRevealRole: function() {
+        if (!playerRole) {
+            this.addBotMessage("Você precisa revelar seu papel primeiro. Clique no botão 'Revelar Meu Papel' para descobrir qual é o seu papel no jogo.");
+            this.highlightElement('#reveal-role', "Clique aqui para revelar seu papel");
+        } else {
+            this.explainCurrentRole();
+        }
+    },
+
+    // Mostra opções de ajuda
+    showHelpOptions: function() {
+        this.addBotMessage("Posso te ajudar com:", [
+            { text: "Criar uma nova sala", action: () => this.guideCreateRoom() },
+            { text: "Entrar em uma sala", action: () => this.guideJoinRoom() },
+            { text: "Entender as regras", action: () => this.explainRules() },
+            { text: "Sair da sala/jogo", action: () => this.userStatus === 'in_game' ? this.guideLeaveGame() : this.guideLeaveRoom() }
+        ]);
+    },
+
+    // Destaca um elemento na tela
+    highlightElement: function(selector, message) {
+        const element = document.querySelector(selector);
+        if (!element) return;
+        
+        // Cria overlay de destaque
+        const highlight = document.createElement('div');
+        highlight.className = 'tutor-highlight';
+        
+        // Posiciona sobre o elemento
+        const rect = element.getBoundingClientRect();
+        highlight.style.position = 'fixed';
+        highlight.style.top = `${rect.top}px`;
+        highlight.style.left = `${rect.left}px`;
+        highlight.style.width = `${rect.width}px`;
+        highlight.style.height = `${rect.height}px`;
+        highlight.style.border = '2px solid #e94560';
+        highlight.style.borderRadius = '8px';
+        highlight.style.boxShadow = '0 0 0 9999px rgba(0, 0, 0, 0.7)';
+        highlight.style.zIndex = '9998';
+        highlight.style.pointerEvents = 'none';
+        
+        // Adiciona mensagem flutuante
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tutor-tooltip';
+        tooltip.textContent = message;
+        tooltip.style.position = 'fixed';
+        tooltip.style.top = `${rect.top - 50}px`;
+        tooltip.style.left = `${rect.left}px`;
+        tooltip.style.backgroundColor = '#1a1a2e';
+        tooltip.style.color = 'white';
+        tooltip.style.padding = '10px';
+        tooltip.style.borderRadius = '8px';
+        tooltip.style.border = '1px solid #e94560';
+        tooltip.style.zIndex = '9999';
+        tooltip.style.maxWidth = '300px';
+        
+        document.body.appendChild(highlight);
+        document.body.appendChild(tooltip);
+        
+        // Remove após alguns segundos
+        setTimeout(() => {
+            document.body.removeChild(highlight);
+            document.body.removeChild(tooltip);
+        }, 5000);
+    }
+};
+
+// Estilos para o chatbot
+const tutorStyles = document.createElement('style');
+tutorStyles.textContent = `
+.game-tutor-container {
+    position: fixed;
+    bottom: 5px;
+    right: 20px;
+    width: 365px;
+    height: 380px;
+    background: rgba(30, 30, 60, 0.95);
+    border-radius: 10px;
+    border: 1px solid #e94560;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+}
+
+.game-tutor-header {
+    padding: 10px 15px;
+    background: rgba(15, 52, 96, 0.7);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e94560;
+}
+
+.game-tutor-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.game-tutor-controls button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 0.9rem;
+}
+
+.game-tutor-controls button:hover {
+    color: #e94560;
+}
+
+.game-tutor-chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.game-tutor-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bot-message, .user-message {
+    display: flex;
+    max-width: 80%;
+}
+
+.bot-message {
+    align-self: flex-start;
+}
+
+.user-message {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(233, 69, 96, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    flex-shrink: 0;
+}
+
+.message-content {
+    padding: 8px 12px;
+    border-radius: 15px;
+}
+
+.bot-message .message-content {
+    background: rgba(15, 52, 96, 0.5);
+    border-bottom-left-radius: 5px;
+}
+
+.user-message .message-content {
+    background: rgba(233, 69, 96, 0.2);
+    border-bottom-right-radius: 5px;
+}
+
+.message-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.message-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.option-btn {
+    background: rgba(233, 69, 96, 0.3);
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.option-btn:hover {
+    background: rgba(233, 69, 96, 0.5);
+}
+
+.game-tutor-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-tutor-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(20, 20, 40, 0.8);
+    color: white;
+    font-size: 0.9rem;
+}
+
+.game-tutor-input input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.3);
+}
+
+.game-tutor-input button {
+    background: rgba(233, 69, 96, 0.5);
+    border: none;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.game-tutor-input button:hover {
+    background: rgba(233, 69, 96, 0.8);
+}
+
+.tutor-highlight {
+    animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+    0% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 0 rgba(233, 69, 96, 0.8); }
+    50% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 5px rgba(233, 69, 96, 0.8); }
+    100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 0 0 rgba(233, 69, 96, 0.8); }
+}
+
+.tutor-tooltip {
+    animation: slide-down 0.3s ease-out;
+}
+
+@keyframes slide-down {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+`;
+document.head.appendChild(tutorStyles);
+
+// Inicializa o tutor quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', () => {
+    gameTutor.init();
+});
+</script>
+
     <script>
         // Configuração do Firebase
         const firebaseConfig = {
@@ -632,6 +1625,9 @@ input[type="text"]:focus {
         let isHost = false;
         let playerRole = "";
         let gameStarted = false; // Estado local do cliente
+          let chatInitialized = false;
+  let isChatMinimized = true;
+  let alivePlayers = {};
 
         // Elementos da DOM
         const loginContainer = document.getElementById('login-container');
@@ -653,6 +1649,13 @@ input[type="text"]:focus {
         const gameActions = document.getElementById('game-actions');
         const revealRoleBtn = document.getElementById('reveal-role');
         const restartGameBtn = document.getElementById('restart-game-btn');
+          const chatContainer = document.getElementById('chat-container');
+  const chatMessages = document.getElementById('chat-messages');
+  const chatMessageInput = document.getElementById('chat-message');
+  const sendMessageBtn = document.getElementById('send-message');
+  const minimizeChatBtn = document.getElementById('minimize-chat');
+  const closeChatBtn = document.getElementById('close-chat');
+  const chatHeader = document.getElementById('chat-header');
 
 
         // Event Listeners
@@ -663,6 +1666,15 @@ input[type="text"]:focus {
         leaveRoomBtn.addEventListener('click', leaveRoom);
         revealRoleBtn.addEventListener('click', revealRole);
         restartGameBtn.addEventListener('click', startGame); // O botão de reiniciar chama a mesma função de iniciar
+          sendMessageBtn.addEventListener('click', sendChatMessage);
+  chatMessageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendChatMessage();
+  });
+  minimizeChatBtn.addEventListener('click', toggleChatMinimize);
+  closeChatBtn.addEventListener('click', closeChat);
+  chatHeader.addEventListener('click', () => {
+    if (isChatMinimized) toggleChatMinimize();
+  });
 
         // Função para gerar um ID aleatório
         function generateId() {
@@ -795,6 +1807,155 @@ input[type="text"]:focus {
                 playersList.appendChild(li);
             }
         }
+        
+        function initChat() {
+    if (chatInitialized) return;
+    chatInitialized = true;
+    
+    // Mostra o chat minimizado quando o jogo começa
+    toggleChatMinimize();
+    
+    // Monitora mensagens do chat no Firebase
+    const chatRef = database.ref(`rooms/${roomCode}/chat`);
+    chatRef.on('child_added', (snapshot) => {
+      const message = snapshot.val();
+      addMessageToChat(message.sender, message.text, message.senderId, message.timestamp, message.isDead);
+    });
+    
+    // Monitora jogadores mortos
+    const playersRef = database.ref(`rooms/${roomCode}/players`);
+    playersRef.on('value', (snapshot) => {
+      const players = snapshot.val() || {};
+      alivePlayers = {};
+      
+      for (const [id, player] of Object.entries(players)) {
+        if (!player.isDead) {
+          alivePlayers[id] = player.name;
+        }
+      }
+    });
+  }
+
+  // Envia mensagem no chat
+  function sendChatMessage() {
+    const messageText = chatMessageInput.value.trim();
+    if (!messageText || !playerName || !gameStarted) return;
+    
+    // Verifica se o jogador está vivo para enviar mensagens
+    if (!alivePlayers[playerId]) {
+      alert("Você está morto e não pode enviar mensagens!");
+      chatMessageInput.value = '';
+      return;
+    }
+    
+    const timestamp = Date.now();
+    const chatRef = database.ref(`rooms/${roomCode}/chat`);
+    
+    chatRef.push({
+      sender: playerName,
+      senderId: playerId,
+      text: messageText,
+      timestamp: timestamp,
+      isDead: false
+    }).then(() => {
+      chatMessageInput.value = '';
+    }).catch(error => {
+      console.error("Erro ao enviar mensagem:", error);
+    });
+  }
+
+  // Adiciona mensagem ao chat
+  function addMessageToChat(sender, text, senderId, timestamp, isDead) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${senderId === playerId ? 'sent' : 'received'} ${isDead ? 'dead' : ''}`;
+    
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = 'message-avatar';
+    avatarDiv.textContent = sender.charAt(0).toUpperCase();
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    
+    const senderDiv = document.createElement('div');
+    senderDiv.className = 'message-sender';
+    senderDiv.textContent = sender;
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = 'message-text';
+    textDiv.textContent = text;
+    
+    contentDiv.appendChild(senderDiv);
+    contentDiv.appendChild(textDiv);
+    messageDiv.appendChild(avatarDiv);
+    messageDiv.appendChild(contentDiv);
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Alterna entre chat minimizado e normal
+  function toggleChatMinimize() {
+    isChatMinimized = !isChatMinimized;
+    chatContainer.classList.toggle('minimized', isChatMinimized);
+    minimizeChatBtn.innerHTML = isChatMinimized ? '<i class="fas fa-window-maximize"></i>' : '<i class="fas fa-window-minimize"></i>';
+  }
+
+  // Fecha o chat (não remove, apenas esconde)
+  function closeChat() {
+    chatContainer.style.display = 'none';
+  }
+
+  // Mostra notificação de morte
+  function showDeathNotification(playerName) {
+    const notification = document.createElement('div');
+    notification.className = 'death-notification';
+    notification.innerHTML = `☠️ ${playerName} MORREU! ☠️`;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.transition = 'opacity 1s';
+      notification.style.opacity = '0';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 1000);
+    }, 3000);
+  }
+
+  // Monitora mortes de jogadores
+  function monitorDeaths() {
+    const playersRef = database.ref(`rooms/${roomCode}/players`);
+    playersRef.on('child_changed', (snapshot) => {
+      const player = snapshot.val();
+      const playerId = snapshot.key;
+      
+      if (player.isDead) {
+        // Atualiza mensagens antigas do jogador
+        updateDeadPlayerMessages(playerId, player.name);
+        
+        // Mostra notificação se não for o próprio jogador
+        if (playerId !== playerId) {
+          showDeathNotification(player.name);
+        }
+      }
+    });
+  }
+
+  // Atualiza mensagens antigas de jogadores mortos
+  function updateDeadPlayerMessages(playerId, playerName) {
+    const chatRef = database.ref(`rooms/${roomCode}/chat`);
+    chatRef.orderByChild('senderId').equalTo(playerId).once('value', (snapshot) => {
+      const updates = {};
+      
+      snapshot.forEach((message) => {
+        updates[`${message.key}/isDead`] = true;
+      });
+      
+      if (Object.keys(updates).length > 0) {
+        chatRef.update(updates);
+      }
+    });
+  }
 
         // Inicia ou Reinicia o jogo (apenas host)
         function startGame() {
@@ -842,26 +2003,70 @@ input[type="text"]:focus {
 
         // Prepara a tela do jogador para o jogo
         function startPlayerGame(role) {
-            playerRole = role;
-            loginContainer.style.display = 'none';
-            lobbyContainer.style.display = 'none';
-            gameContainer.style.display = 'flex';
+    playerRole = role;
+    loginContainer.style.display = 'none';
+    lobbyContainer.style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    // Reseta a UI para o estado de "pré-revelação"
+    gameActions.style.display = 'block';
+    revealRoleBtn.style.display = 'block';
+    roleTitle.innerHTML = "Bem-vindo ao Jogo";
+    roleDescription.textContent = "Clique no botão abaixo para revelar seu papel.";
+    gameInstructions.innerHTML = "Não compartilhe seu papel com outros jogadores até o momento apropriado!";
+    
+    const roleCard = document.getElementById('role-card');
+    const existingCharacter = roleCard.querySelector('.character');
+    if (existingCharacter) existingCharacter.remove();
+    roleCard.removeAttribute('data-role');
+    
+    // Mostra o botão de reiniciar apenas para o host
+    restartGameBtn.style.display = isHost ? 'block' : 'none';
+    
+    // Inicializa o chat quando o jogo começa
+    if (!chatInitialized) {
+        chatInitialized = true;
+        
+        // Mostra o chat minimizado quando o jogo começa
+        toggleChatMinimize();
+        
+        // Monitora mensagens do chat no Firebase
+        const chatRef = database.ref(`rooms/${roomCode}/chat`);
+        chatRef.on('child_added', (snapshot) => {
+            const message = snapshot.val();
+            addMessageToChat(message.sender, message.text, message.senderId, message.timestamp, message.isDead);
+        });
+        
+        // Monitora jogadores mortos
+        const playersRef = database.ref(`rooms/${roomCode}/players`);
+        playersRef.on('value', (snapshot) => {
+            const players = snapshot.val() || {};
+            alivePlayers = {};
             
-            // Reseta a UI para o estado de "pré-revelação"
-            gameActions.style.display = 'block';
-            revealRoleBtn.style.display = 'block';
-            roleTitle.innerHTML = "Bem-vindo ao Jogo";
-            roleDescription.textContent = "Clique no botão abaixo para revelar seu papel.";
-            gameInstructions.innerHTML = "Não compartilhe seu papel com outros jogadores até o momento apropriado!";
+            for (const [id, player] of Object.entries(players)) {
+                if (!player.isDead) {
+                    alivePlayers[id] = player.name;
+                }
+            }
+        });
+        
+        // Monitora mortes de jogadores
+        playersRef.on('child_changed', (snapshot) => {
+            const player = snapshot.val();
+            const playerIdChanged = snapshot.key;
             
-            const roleCard = document.getElementById('role-card');
-            const existingCharacter = roleCard.querySelector('.character');
-            if (existingCharacter) existingCharacter.remove();
-            roleCard.removeAttribute('data-role');
-            
-            // Mostra o botão de reiniciar apenas para o host
-            restartGameBtn.style.display = isHost ? 'block' : 'none';
-        }
+            if (player.isDead) {
+                // Atualiza mensagens antigas do jogador
+                updateDeadPlayerMessages(playerIdChanged, player.name);
+                
+                // Mostra notificação se não for o próprio jogador
+                if (playerIdChanged !== playerId) {
+                    showDeathNotification(player.name);
+                }
+            }
+        });
+    }
+}
 
         // Revela o papel do jogador
         function revealRole() {
@@ -899,10 +2104,17 @@ input[type="text"]:focus {
 
         // Sai da sala
         function leaveRoom() {
-            const playerRef = database.ref(`rooms/${roomCode}/players/${playerId}`);
-            playerRef.remove().then(() => window.location.reload())
-                .catch(error => console.error("Erro ao sair da sala:", error));
-        }
+    // Remove listeners do chat se estiver inicializado
+    if (chatInitialized) {
+        database.ref(`rooms/${roomCode}/chat`).off();
+        database.ref(`rooms/${roomCode}/players`).off();
+    }
+    
+    // Remove o jogador da sala
+    const playerRef = database.ref(`rooms/${roomCode}/players/${playerId}`);
+    playerRef.remove().then(() => window.location.reload())
+        .catch(error => console.error("Erro ao sair da sala:", error));
+}
 
         // Retorna o nome do papel para exibição
         function getRoleName(role) {
